@@ -1,0 +1,12 @@
+.container {
+  border: 2px solid black;
+}
+
+.taken {
+  border-color: red;
+  padding: 10px;
+}
+
+.available {
+  border-color: green;
+}
