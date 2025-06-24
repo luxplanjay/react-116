@@ -13,10 +13,12 @@ export default function CatInfo({
 
   return (
     <div className={containerClsx}>
-      <img src={image} alt={name} width="120" />
-      <p>Name: {name}</p>
-      <p>Email: {email}</p>
-      <p>{taken ? "Taken" : "Available"}</p>
+      <div className={css.imageWrapper}>
+        <img src={image} alt={name} className={css.image} />
+      </div>
+      <p className={css.text}>Name: {name}</p>
+      <p className={css.text}>Email: {email}</p>
+      <p className={css.text}>{taken ? "Taken" : "Available"}</p>
     </div>
   );
 }

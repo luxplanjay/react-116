@@ -1,0 +1,17 @@
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.title {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827; /* gray-900 */
+  margin-bottom: 16px;
+}

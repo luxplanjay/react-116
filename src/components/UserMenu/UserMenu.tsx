@@ -6,9 +6,9 @@ interface UserMenuProps {
 
 export default function UserMenu({ username }: UserMenuProps) {
   return (
-    <div className={css.container}>
-      <p className={css.name}>Welcome, {username}</p>
-      <button>Log out</button>
+    <div className={css.menu}>
+      <p className={css.username}>Welcome, {username}</p>
+      <button className={css.button}>Log out</button>
     </div>
   );
 }
