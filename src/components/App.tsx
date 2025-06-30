@@ -1,39 +1,33 @@
 import { useState } from "react";
-import ClickCounter from "./ClickCounter";
-import CountDisplay from "./CountDisplay";
-import Accordion from "./Accordion";
-import TagManager from "./TagManager/TagManager";
+import SearchForm from "./SearchForm/SearchForm";
+import { Article } from "../types/article";
+import { fetchArticles } from "../services/articleService";
+import ArticleList from "./ArticleList/ArticleList";
 
 export default function App() {
-  const [clicks, setClicks] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  const handleClick = () => setClicks(clicks + 1);
-
-  const toggleText = () => setIsOpen(!isOpen);
+  const handleSearch = async (searchTopic: string) => {
+    try {
+      setIsError(false);
+      setIsLoading(true);
+      const newArticles = await fetchArticles(searchTopic);
+      setArticles(newArticles);
+    } catch {
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
-      <CountDisplay count={clicks} />
-      <ClickCounter value={clicks} onUpdate={handleClick} />
-      <ClickCounter value={clicks} onUpdate={handleClick} />
-      <ClickCounter value={clicks} onUpdate={handleClick} />
-
-      <hr />
-      <button onClick={toggleText}>{isOpen ? "Close" : "Open"}</button>
-      {isOpen && <p>You can see me!!!</p>}
-      <hr />
-      <Accordion
-        items={[
-          { title: "Section 1", content: "Content of section 1" },
-          { title: "Section 2", content: "Content of section 2" },
-          { title: "Section 3", content: "Content of section 3" },
-          { title: "Section 4", content: "Content of section 4" },
-          { title: "Section 5", content: "Content of section 5" },
-        ]}
-      />
-      <hr />
-      <TagManager />
+      <SearchForm onSearch={handleSearch} />
+      {isLoading && <strong>Loading articles...</strong>}
+      {isError && <strong>Whoops, that's an error!!!</strong>}
+      {articles.length > 0 && <ArticleList items={articles} />}
     </>
   );
 }
