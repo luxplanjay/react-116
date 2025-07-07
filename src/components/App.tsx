@@ -1,52 +1,40 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { useLocalStorage } from "usehooks-ts";
-import Timer from "./Timer";
-import Sidebar from "./Sidebar";
+import { useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import ArticleList from "./ArticleList";
+import SearchForm from "./SearchForm";
+import { fetchArticles } from "../services/articleService";
+import Pagination from "./Pagination";
 
 export default function App() {
-  const [clicks, setClicks] = useLocalStorage("my-clicks", 0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [topic, setTopic] = useState("");
+  const { data, isLoading, isError, isSuccess } = useQuery({
+    queryKey: ["articles", topic, currentPage],
+    queryFn: () => fetchArticles(topic, currentPage),
+    enabled: topic !== "",
+    placeholderData: keepPreviousData,
+  });
 
-  // const [clicks, setClicks] = useState(() => {
-  //   const savedClicks = localStorage.getItem("my-clicks");
-  //   if (savedClicks !== null) {
-  //     return JSON.parse(savedClicks);
-  //   }
-  //   return 0;
-  // });
+  const totalPages = data?.nbPages ?? 0;
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const openSidebar = () => setIsSidebarOpen(true);
-
-  const closeSidebar = () => setIsSidebarOpen(false);
-
-  // useEffect(() => {
-  //   localStorage.setItem("my-clicks", JSON.stringify(clicks));
-  // }, [clicks]);
-
-  // const [character, setCharacter] = useState(null);
-  // const [count, setCount] = useState(1);
-
-  // useEffect(() => {
-  //   axios.get(`https://swapi.info/api/people/${count}`).then((response) => {
-  //     setCharacter(response.data);
-  //   });
-  // }, [count]);
+  const handleFormSubmit = (newTopic: string) => {
+    setTopic(newTopic);
+    setCurrentPage(1);
+  };
 
   return (
     <>
-      <button onClick={() => setClicks(clicks + 1)}>Clicks {clicks}</button>
-      <hr />
-      <button onClick={openSidebar}>Open sidebar</button>
-      {isSidebarOpen && <Sidebar onClose={closeSidebar} />}
-
-      {/* <button onClick={() => setCount(count + 1)}>Count {count}</button>
-      <pre>{JSON.stringify(character, null, 2)}</pre> */}
-      <hr />
-      <button onClick={() => setIsVisible(!isVisible)}>Toggle</button>
-      {isVisible && <Timer />}
+      <SearchForm onSubmit={handleFormSubmit} />
+      {isSuccess && (
+        <Pagination
+          page={currentPage}
+          total={totalPages}
+          onChange={setCurrentPage}
+        />
+      )}
+      {isLoading && <strong>Loading articles...</strong>}
+      {isError && <strong>Oops there was an error...</strong>}
+      {data && data.hits.length > 0 && <ArticleList items={data.hits} />}
     </>
   );
 }

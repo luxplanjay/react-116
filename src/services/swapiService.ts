@@ -1,0 +1,20 @@
+import axios from "axios";
+
+export interface Person {
+  name: string;
+  height: string;
+  mass: string;
+  hair_color: string;
+  skin_color: string;
+  eye_color: string;
+  birth_year: string;
+  gender: string;
+  homeworld: string;
+}
+
+export const fetchPerson = async (personId: number) => {
+  const response = await axios.get<Person>(
+    `https://swapi.info/api/people/${personId}`
+  );
+  return response.data;
+};
