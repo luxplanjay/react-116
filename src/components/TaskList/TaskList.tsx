@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteTask, updateTask } from "../../services/taskService";
 import type { Task, TaskUpdateData } from "../../types/task";
 import css from "./TaskList.module.css";
-import { deleteTask, updateTask } from "../../services/taskService";
 
 interface TaskListProps {
   tasks: Task[];
@@ -11,32 +11,16 @@ export default function TaskList({ tasks }: TaskListProps) {
   const queryClient = useQueryClient();
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (taskId: string) => deleteTask(taskId),
-    onSuccess() {
-      // onSuccess(deletedTask) {
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-
-      // queryClient.setQueryData<Task[]>(["tasks"], (prevTasks) => {
-      //   if (!prevTasks) return [];
-      //   return prevTasks.filter((task) => task.id !== deletedTask.id);
-      // });
     },
   });
 
-  const handleDelete = (taskId: string) => {
-    deleteTaskMutation.mutate(taskId);
-  };
-
   const updateTaskMutation = useMutation({
     mutationFn: (updatedTask: TaskUpdateData) => updateTask(updatedTask),
-    onSuccess(updatedTask) {
-      queryClient.setQueryData<Task[]>(["tasks"], (prevTasks) => {
-        if (!prevTasks) return [];
-
-        return prevTasks.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task
-        );
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
@@ -54,14 +38,14 @@ export default function TaskList({ tasks }: TaskListProps) {
           <input
             type="checkbox"
             defaultChecked={task.completed}
-            className={css.checkbox}
             onChange={() => handleUpdate(task)}
+            className={css.checkbox}
           />
           <span className={css.text}>{task.text}</span>
           <button
             type="button"
             className={css.button}
-            onClick={() => handleDelete(task.id)}
+            onClick={() => deleteTaskMutation.mutate(task.id)}
           >
             Delete
           </button>

@@ -1,22 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./TaskForm.module.css";
 import { addTask } from "../../services/taskService";
-import { NewTaskData } from "../../types/task";
+import { type NewTaskData } from "../../types/task";
 
 interface TaskFormProps {
-  onCloseModal: () => void;
+  onSuccess: () => void;
 }
 
-export default function TaskForm({ onCloseModal }: TaskFormProps) {
+// ["tasks", searchQuery]
+// ["tasks", "a" ,1]
+// ["tasks", "b", 4];
+// ["tasks", "c", 10];
+
+//  queryClient.invalidateQueries({ queryKey: ["tasks"] });
+
+export default function TaskForm({ onSuccess }: TaskFormProps) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (taskData: NewTaskData) => addTask(taskData),
-    onSuccess() {
-      queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
-      onCloseModal();
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      onSuccess();
     },
   });
 
